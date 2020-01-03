@@ -10,9 +10,7 @@ use Mix.Config
 # Configures the endpoint
 config :pepe, PepeWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "oFwve1ry77K3xNbBxoonfQQrkBAKgRfCzp83BgjFtVWqSUuVeQsBmNQasCp9oRNi",
-  render_errors: [view: PepeWeb.ErrorView, accepts: ~w(json)],
-  pubsub: [name: Pepe.PubSub, adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: PepeWeb.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
