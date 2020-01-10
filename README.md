@@ -2,19 +2,22 @@
 [![Project Pepe](https://img.shields.io/badge/project-pepe-blue?logo=trello)](https://trello.com/b/EigwPECX/pepe-hacktime)
 [![Build status](https://badge.buildkite.com/e38568802af88d8941063fc9741aa6e0777a75900d94baf236.svg)](https://buildkite.com/pepe/backend)
 
-To start your Phoenix server:
+**TODO: Add description**
 
-  * Install dependencies with `mix deps.get`
-  * Start Phoenix endpoint with `mix phx.server`
+## Installation
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `pepe` to your list of dependencies in `mix.exs`:
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+```elixir
+def deps do
+  [
+    {:pepe, "~> 0.1.0"}
+  ]
+end
+```
 
-## Learn more
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at [https://hexdocs.pm/pepe](https://hexdocs.pm/pepe).
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
