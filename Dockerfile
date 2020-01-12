@@ -53,4 +53,4 @@ COPY --from=builder /opt/pepe/* ./
 RUN mix compile
 RUN mix release
 
-RUN _build/prod/rel/pepe/bin/pepe start
+CMD ["_build/prod/rel/pepe/bin/pepe", "start"]
