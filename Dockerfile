@@ -11,7 +11,7 @@ RUN mix local.hex --force && \
 
 COPY mix.* ./
 
-RUN mix deps.get && \
+RUN mix deps.get --only $MIX_ENV && \
     mix deps.compile
 
 COPY . .
