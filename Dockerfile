@@ -45,7 +45,7 @@ RUN mix local.hex --force && \
 
 COPY --from=builder /opt/pepe/mix.* ./
 
-RUN mix deps.get && \
+RUN mix deps.get --only $MIX_ENV && \
     mix deps.compile
 
 COPY --from=builder /opt/pepe/* ./
