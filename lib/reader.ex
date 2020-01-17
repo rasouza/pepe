@@ -3,49 +3,26 @@ defmodule Pepe.Reader do
 
   alias Pepe.Storage
 
-  @value "value"
+  @last_item -1
 
-  def get(key, options) do
-    case Storage.get(key) do
-      nil ->
-        {:error, :not_found}
-
-      data ->
-        {:ok, find(data, options)}
-    end
+  def get(%{"path" => path}) do
+    data = Storage.get_all()
+    find(data, path)
   end
 
-  defp find(data, []), do: do_find(data, [])
-
-  defp find(data, options) when is_list(options) do
-    Logger.debug("Looking for #{inspect(options)} inside #{inspect(data)}")
-
-    transformed =
-      Enum.map(options, fn {key, value} ->
-        [key, value]
-      end)
-      |> List.flatten()
-
-    do_find(data, transformed)
+  def get(%{}) do
+    {:ok, Storage.get_all()}
   end
 
-  defp do_find(data, []), do: Map.get(data, @value, :not_found)
+  defp find(_data, ""), do: {:error, :not_found}
 
-  defp do_find(data, [head | tail]) do
-    Logger.debug("Searching #{inspect(head)} inside #{inspect(data)}")
-
-    case Map.get(data, head) do
+  defp find(data, path) when is_binary(path) do
+    case Map.get(data, path) do
       nil ->
-        Map.get(data, @value, :not_found)
+        find(data, path |> String.split(".") |> List.delete_at(@last_item) |> Enum.join("."))
 
-      %{} = value ->
-        case do_find(value, tail) do
-          :not_found ->
-            Map.get(data, @value, :not_found)
-
-          result ->
-            result
-        end
+      value ->
+        {:ok, value}
     end
   end
 end

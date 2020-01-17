@@ -11,14 +11,26 @@ defmodule Pepe.Router do
 
   plug(:dispatch)
 
-  get "/:path" do
-    result = Pepe.Controller.get(path, Pepe.QueryString.transform(conn.query_string))
+  get "/configs" do
+    result = Pepe.Controller.get(conn.query_params)
+
+    conn
+    |> put_resp_header("content-type", "application/json")
+    |> parse_response(result)
+  end
+
+  post "/configs" do
+    result = Pepe.Controller.post(conn.body_params)
     parse_response(conn, result)
   end
 
-  post "/:path" do
-    result = Pepe.Controller.post(path, conn.body_params)
+  patch "/configs" do
+    result = Pepe.Controller.patch(conn.body_params)
     parse_response(conn, result)
+  end
+
+  defp parse_response(conn, {status, %{} = response}) do
+    parse_response(conn, {status, response |> Jason.encode!()})
   end
 
   defp parse_response(conn, {status, response}) do

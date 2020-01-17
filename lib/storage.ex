@@ -9,30 +9,37 @@ defmodule Pepe.Storage do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def put(key, params) do
-    GenServer.call(__MODULE__, {:put, key, params})
+  def write(params) do
+    GenServer.call(__MODULE__, {:write, params})
   end
 
-  def get(key) do
-    data = :ets.lookup_element(@ets_table, :data, 2)
-    data[key]
+  def overwrite(params) do
+    GenServer.call(__MODULE__, {:overwrite, params})
+  end
+
+  def get_all() do
+    :ets.lookup_element(@ets_table, :content, 2)
   end
 
   @impl true
   def init(_) do
     data = File.read(file_path()) |> decode_file()
     table = :ets.new(@ets_table, @ets_table_options)
-    true = :ets.insert(table, {:data, data})
+    true = :ets.insert(table, content: data)
     {:ok, table}
   end
 
   @impl true
-  def handle_call({:put, key, value}, _from, table) do
-    data = get(key)
-    new_data = Map.put(data, key, value)
-    write_file(new_data)
-    :ets.insert(table, {:data, new_data})
-    {:reply, :ok, table}
+  def handle_call({:write, params}, _from, state) do
+    data = get_all()
+    true = :ets.insert(@ets_table, content: Map.merge(data, params))
+    {:reply, :ok, state}
+  end
+
+  @impl true
+  def handle_call({:overwrite, params}, _from, state) do
+    true = :ets.insert(@ets_table, content: params)
+    {:reply, :ok, state}
   end
 
   defp file_path do
@@ -52,9 +59,5 @@ defmodule Pepe.Storage do
 
   defp decode_file(_) do
     %{}
-  end
-
-  defp write_file(data) do
-    File.write(file_path(), Jason.encode!(data))
   end
 end
