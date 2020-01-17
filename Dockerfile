@@ -48,7 +48,7 @@ COPY --from=builder /opt/pepe/mix.* ./
 RUN mix deps.get --only $MIX_ENV && \
     mix deps.compile
 
-COPY --from=builder /opt/pepe/* ./
+COPY . .
 
 RUN mix compile
 RUN mix release
