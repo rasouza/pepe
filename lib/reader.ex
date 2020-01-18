@@ -6,12 +6,12 @@ defmodule Pepe.Reader do
   @last_item -1
 
   def get(%{"path" => path}) do
-    data = Storage.get_all()
+    {:ok, data} = Storage.get_all()
     find(data, path)
   end
 
   def get(%{}) do
-    {:ok, Storage.get_all()}
+    Storage.get_all()
   end
 
   defp find(_data, ""), do: {:error, :not_found}

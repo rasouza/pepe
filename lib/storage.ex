@@ -1,12 +1,11 @@
 defmodule Pepe.Storage do
   use GenServer
 
-  @ets_table :storage_tree
-  @ets_table_options [:set, :protected, :named_table, {:read_concurrency, true}]
-  @file_name "data.json"
+  @memory_backend Application.get_env(:pepe, :storage)[:memory_backend]
+  @persistent_backend Application.get_env(:pepe, :storage)[:persistent_backend]
 
   def start_link(_opts) do
-    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %{env: Mix.env()}, name: __MODULE__)
   end
 
   def write(params) do
@@ -18,46 +17,43 @@ defmodule Pepe.Storage do
   end
 
   def get_all() do
-    :ets.lookup_element(@ets_table, :content, 2)
+    @memory_backend.read()
   end
 
   @impl true
-  def init(_) do
-    data = File.read(file_path()) |> decode_file()
-    table = :ets.new(@ets_table, @ets_table_options)
-    true = :ets.insert(table, content: data)
-    {:ok, table}
+  def init(%{env: :test} = state) do
+    # TODO find out a way to improve this
+    # we can't interact with @memory_backend here during
+    # tests because the mocks won't be configured yet, as this
+    # callback is invoked during application startup and the tests
+    # only run later
+    {:ok, state}
+  end
+
+  @impl true
+  def init(%{} = state) do
+    send(self(), :init)
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info(:init, state) do
+    {:ok, data} = @persistent_backend.read()
+    :ok = @memory_backend.init(data)
+    {:noreply, state}
   end
 
   @impl true
   def handle_call({:write, params}, _from, state) do
-    data = get_all()
-    true = :ets.insert(@ets_table, content: Map.merge(data, params))
+    :ok = @memory_backend.write(params)
+    :ok = @persistent_backend.write(params)
     {:reply, :ok, state}
   end
 
   @impl true
   def handle_call({:overwrite, params}, _from, state) do
-    true = :ets.insert(@ets_table, content: params)
+    :ok = @memory_backend.overwrite(params)
+    :ok = @persistent_backend.overwrite(params)
     {:reply, :ok, state}
-  end
-
-  defp file_path do
-    {:ok, path} = File.cwd()
-    "#{path}/#{@file_name}"
-  end
-
-  defp decode_file({:ok, data}) do
-    case Jason.decode(data) do
-      {:ok, state} ->
-        state
-
-      {:error, _} ->
-        %{}
-    end
-  end
-
-  defp decode_file(_) do
-    %{}
   end
 end
